@@ -83,40 +83,35 @@ The Python implementation includes two cache types:
 from itertools import combinations
 
 class HashedCacheCompiled:
-    def __init__(self):
-        self.matching_pattern = {}
-
-    def has_matching_data(self, key_combination):
-        # Example implementation: should be replaced with actual cache check logic
-        return False
+	...
 
     def _compile_patterns(self, param_keys):
         """
-        Compile the matching_pattern dictionary to determine which combinations to skip.
-        
+        Check all possible combinations of the provided parameter keys to see if they
+        match any rule in the cache. Cache the results.
+
         Parameters:
         param_keys (list): A list of parameter keys to check.
         """
+        # Iterate over all lengths of combinations from the length of param_keys down to 1
         for i in range(len(param_keys), 0, -1):
+            # Generate all combinations of param_keys of length i
             for combo in combinations(param_keys, i):
+                # Check if the current combination matches any data in the cache
                 has_matching_pattern = self.has_matching_data(combo)
+                # Cache the result of whether this combination has matching data
                 self.matching_pattern[combo] = has_matching_pattern
 
     def generate_keys(self, params):
         """
-        Generate all possible keys with decreasing number of parameters, using the compiled matching_pattern.
-        
-        Parameters:
-        params (dict): A dictionary of parameter keys and values.
-        
-        Returns:
-        list: A list of keys to check in the cache.
+        Generate all possible keys with decreasing number of parameters.
         """
         keys = []
         param_keys = list(params.keys())
         for i in range(len(param_keys), 0, -1):
             for combo in combinations(param_keys, i):
-                if self.matching_pattern.get(combo, False):
+				# skip patterns that do not match any rule
+                if self.matching_pattern[combo]:
                     key = tuple((k, params[k]) for k in combo)
                     keys.append(key)
         return keys
