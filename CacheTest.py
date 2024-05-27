@@ -1,4 +1,5 @@
 from caches.AshedCacheCompiled import AshedCacheCompiled
+from constants import NUM_RECORDS
 from utilities.PupulateCache import create_random_data, random_search_params
 from caches.AshedCache import AshedCache
 from utilities.Timer import Timer
@@ -8,7 +9,7 @@ cache = AshedCacheCompiled()
 # cache = AshedCache()
 
 # Create random data
-create_random_data(cache)
+create_random_data(cache, num_records=NUM_RECORDS)
 
 try:
     cache.compile_patterns()

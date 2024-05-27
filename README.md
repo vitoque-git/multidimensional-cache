@@ -1,101 +1,133 @@
 # multidimensional-cache
-
 ## Overview
-A general software problem is described by dictionary access in situation in which a number of keys can be used in a hirerchical order, where matching with the most number of fields take priority compared to the same positive search with a smaller degree of matched parameters. This is common for rules in which you fallback in wildcarded fields. 
-For example on a three fields fruit cache, based on colour, acidity and size, a rule 1 can be defined for fruits that are yellow, below 1kg and acid (three fields pattern), another one, rule 2, for fruits that are yellow and acid (two fields seach), and another one, rule 3, for fruits that are acid, rule 4 fruits that are green, rule 5 fruits that are red (all one field search). So, a lemon will be interecepted by the rule 1,2,3 but rule 1 will be applied because it match on two fields, size and acidity, while a banana satisfies only rule 3, and an avocado none.
 
-So a search for a three dimensional cache will look like a if-then-else tree in which the further we go, the less fields are checked 
+In many software applications, data retrieval using a dictionary of keys often involves hierarchical rules. The search prioritizes matching the most specific criteria before considering less specific ones. This scenario is common in rule-based systems where fallback to wildcarded fields is necessary.
 
-    if cache_search(fruit.colour=X, fruit.acidity=Y, fruit.size=Z) ...
-    elif cache_search(fruit.colour=X, fruit.acidity=Y) ...
-    elif cache_search(fruit.acidity=Y, fruit.size=Z) ...
-    elif cache_search(fruit.colour=X, fruit.size=Z) ...
-    elif cache_search(fruit.colour=X) ...
-    elif cache_search(fruit.acidity=Y) ...
-    elif cache_search(fruit.size=Z) ..
-    else: not found
+For instance, consider a cache for fruits based on color, acidity, and size. You might define rules such as:
+- Rule 1: Fruits that are yellow, below 1kg, and acidic (three fields pattern)
+- Rule 2: Fruits that are yellow and acidic (two fields pattern)
+- Rule 3: Fruits that are acidic (one field pattern)
+- Rule 4: Fruits that are green (one field pattern)
+- Rule 5: Fruits that are red (one field pattern)
 
-## Hashed serialised caches
-A generic and performan implementation of this cache serach is based on ashing by serialising a three dimensional key, in which a wildcard is used to represent the key in case of wildcard. 
+Using these rules:
+- A lemon would match Rule 1, 2, and 3, but Rule 1 is applied as it matches the most fields.
+- A banana might only satisfy Rule 3.
+- An avocado may not match any rules.
 
-Each cache_search is indexed, so it has a O(1) complexity, however, as the number of combination of fields is esponential, 2^n −1 nonwhere n is the number of fields. So the example above 3 fields yield 7 paths, 5 fields give us a 31 combinations of keys to check, where 10 fields will give us a 1023 combinations. So in itself checking each combination is going to slow the search down and we can see the complexity becoming (2^n −1) * O(1)
-The lemon will be a hit at the first leaf, a banana will explore 5 while the avocado will check the whole 9 paths before is resolved in a no hit
+A search in a three-dimensional cache would proceed like an if-then-else tree, where the deeper the tree, the fewer fields are checked:
 
-## Data introspection
-For slow moving rules, one approach, borrowed from the world of complex event processing, could be to use the data itslef to make the code dynamically efficient. The rule introspection in fact, give us clues of which rules, will never yield a match and which not, therefore it is not needed to explore this tree path. 
+```python
+if cache_search(fruit.colour=X, fruit.acidity=Y, fruit.size=Z) ...
+elif cache_search(fruit.colour=X, fruit.acidity=Y) ...
+elif cache_search(fruit.acidity=Y, fruit.size=Z) ...
+elif cache_search(fruit.colour=X, fruit.size=Z) ...
+elif cache_search(fruit.colour=X) ...
+elif cache_search(fruit.acidity=Y) ...
+elif cache_search(fruit.size=Z) ...
+else: not found
+```
 
-In other words, taking the example of before in which we had three rules based on 
-- rule1: colour, acidity, size
-- rule2: colour and acidity
-- rule3: acidity
-- rule4: colour
-- rule5: colour
 
-So, we can already exclude a number of cases from our checks:
+## Hashed Serialized Caches
 
-    if TRUE and cache_search(fruit.colour=X, fruit.acidity=Y, fruit.size=Z) ...
-    elif TRUE and cache_search(fruit.colour=X, fruit.acidity=Y) ...
-    elif FALSE and cache_search(fruit.acidity=Y, fruit.size=Z) ...
-    elif FALSE and cache_search(fruit.colour=X, fruit.size=Z) ...
-    elif TRUE andcache_search(fruit.colour=X) ...
-    elif FALSE and cache_search(fruit.acidity=Y) ...
-    elif FALSE and cache_search(fruit.size=Z) ..
-    else: not found
+A generic and performant implementation of this cache search uses hashing by serializing a multidimensional key, where a wildcard represents unspecified keys. Each `cache_search` is indexed, achieving O(1) complexity. However, the number of field combinations grows exponentially, calculated as 2n−12^n - 12n−1, where nnn is the number of fields.
 
-We therefore moved from 9 checks to 3.
+For example:
+- 3 fields yield 7 combinations.
+- 5 fields yield 31 combinations.
+- 10 fields yield 1023 combinations.
 
-The cost is, obvioulsy paid elsewhre, and specifically to determine which leave needs to be evaluated and which not (the FALSE and TRUE of the code above are obvioulsy a cached dictionary of boolean, called matching_pattern in the code), an operation we will call compilation. This high cost operation is dependent on data, so needs to be done when data changes, and tehrefore the approach suits problem in which rules are static but events are not. This is a typical use case of complex event process from which we can borrow the approach. 
+Checking each combination can slow down the search, resulting in a complexity of (2n−1)∗O(1)(2^n - 1) * O(1)(2n−1)∗O(1). For instance:
+- A lemon would match at the first check.
+- A banana might explore 5 combinations.
+- An avocado might check all 9 combinations before being resolved as a no hit.
+## Data Introspection
 
-## the code
+For slowly changing rules, leveraging data introspection can dynamically optimize the search process. This involves pre-determining which combinations will never yield a match, thereby excluding unnecessary checks. This process is known as compilation.
 
-The implementation in Python has two caches implementation:
-- A pure hash driven approach, AshedCache
-- A has key with compiled search, AshedCacheCompiled.
+Using the previous example:
+- Rule 1: color, acidity, size
+- Rule 2: color and acidity
+- Rule 3: acidity
+- Rule 4: color
+- Rule 5: color
 
-AshedCacheCompiled differs from a pure AshedCache by implementing a method to compile the matching_pattern dictionary of whihc leaf can be skipped altogether:
+We can exclude some cases from our checks:
+
+```python
+if TRUE and cache_search(fruit.colour=X, fruit.acidity=Y, fruit.size=Z) ...
+elif TRUE and cache_search(fruit.colour=X, fruit.acidity=Y) ...
+elif FALSE and cache_search(fruit.acidity=Y, fruit.size=Z) ...
+elif FALSE and cache_search(fruit.colour=X, fruit.size=Z) ...
+elif TRUE and cache_search(fruit.colour=X) ...
+elif FALSE and cache_search(fruit.acidity=Y) ...
+elif FALSE and cache_search(fruit.size=Z) ...
+else: not found
+```
+
+
+
+By doing so, we reduce the number of checks from 9 to 3.
+
+The cost of this optimization is in the initial compilation process, which determines which branches to evaluate. This high-cost operation depends on the data, making it suitable for static rules but dynamic events.
+## The Code
+
+The Python implementation includes two cache types: 
+- `HashedCache`: A pure hash-driven approach. 
+- `HashedCacheCompiled`: A hash-based cache with compiled search optimization.
+
+`HashedCacheCompiled` includes a method to compile the `matching_pattern` dictionary, which indicates which combinations to skip:
+
+```python
+from itertools import combinations
+
+class HashedCacheCompiled:
+    def __init__(self):
+        self.matching_pattern = {}
+
+    def has_matching_data(self, key_combination):
+        # Example implementation: should be replaced with actual cache check logic
+        return False
 
     def _compile_patterns(self, param_keys):
         """
-        Check all possible combinations of the provided parameter keys to see if they
-        match any rule in the cache. Cache the results.
-
+        Compile the matching_pattern dictionary to determine which combinations to skip.
+        
         Parameters:
         param_keys (list): A list of parameter keys to check.
         """
-        # Iterate over all lengths of combinations from the length of param_keys down to 1
         for i in range(len(param_keys), 0, -1):
-            # Generate all combinations of param_keys of length i
             for combo in combinations(param_keys, i):
-                # Check if the current combination matches any data in the cache
                 has_matching_pattern = self.has_matching_data(combo)
-                # Cache the result of whether this combination has matching data
                 self.matching_pattern[combo] = has_matching_pattern
-
-
-The matching_pattern is then used to skip searches altogther, by eliminating combinations of keys for arriving event that do not match any possible search of rules:
 
     def generate_keys(self, params):
         """
-        Generate all possible keys with decreasing number of parameters.
+        Generate all possible keys with decreasing number of parameters, using the compiled matching_pattern.
+        
+        Parameters:
+        params (dict): A dictionary of parameter keys and values.
+        
+        Returns:
+        list: A list of keys to check in the cache.
         """
         keys = []
         param_keys = list(params.keys())
         for i in range(len(param_keys), 0, -1):
             for combo in combinations(param_keys, i):
-                if self.matching_pattern[combo]:
+                if self.matching_pattern.get(combo, False):
                     key = tuple((k, params[k]) for k in combo)
-                    # print(params,combo, keys)
                     keys.append(key)
         return keys
+```
 
 
-## results
-As you would expect, the more rules, the less pattern can be exluded.
-For a 5 fields index, 1000 rules will cover statistically all 31 combinations giving no advantage, while 100 will yiled only half of the combination, yileding a 100% improve of performance. Less than 100 rules, and the performance is more and more evident. 
+## Results
 
+As expected, the more rules defined, the fewer patterns can be excluded. For a 5-field index:
+- 1000 rules will likely cover all 31 combinations, providing no optimization advantage.
+- 100 rules might cover only half of the combinations, improving performance by 50%.
+- Fewer than 100 rules result in even more significant performance improvements.
 
-
-
-
-
-  
+This approach effectively optimizes search performance by reducing the number of necessary checks, especially beneficial in scenarios with static rules but dynamic data events.
