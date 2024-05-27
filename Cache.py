@@ -1,17 +1,17 @@
-from caches.AshedCacheWithPrematch import AshedCacheWithPrematch
+from caches.AshedCacheCompiled import AshedCacheCompiled
 from utilities.PupulateCache import create_random_data, random_search_params
 from caches.AshedCache import AshedCache
 from utilities.Timer import Timer
 import numpy as np
 
-# cache = AshedCacheWithPrematch()
-cache = AshedCache()
+cache = AshedCacheCompiled()
+# cache = AshedCache()
 
 # Create random data
 create_random_data(cache)
 
 try:
-    cache.check_matching_parameters()
+    cache.compile_patterns()
 except:
     pass
 

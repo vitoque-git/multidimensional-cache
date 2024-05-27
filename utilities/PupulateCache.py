@@ -1,19 +1,9 @@
 import random
 
 # Define the number of records and maximum integer for key values
+from constants import *
 from utilities.Timer import Timer
 
-num_records = 14000
-max_int = 100
-
-# Define the distribution of records with 1, 2, 3, 4, and 5 keys
-key_distribution = {
-    1: 0.01,  # 1% of records will have 1 key
-    2: 0.02,  # 2% of records will have 2 keys
-    3: 0.02,  # 30% of records will have 3 keys
-    4: 0.15,  # 20% of records will have 4 keys
-    5: 0.80  # 25% of records will have 5 keys
-}
 
 
 # Generate random search parameters
@@ -56,7 +46,7 @@ def _create_random_data(cache, num_records, max_int, key_distribution):
     # Example usage
     timer = Timer()
     timer.start()
-    keys = ['A', 'B', 'C', 'D', 'E']
+    keys = KEY_FIELDS
 
     def random_params(num_keys):
         return {k: random.randint(1, max_int) for k in random.sample(keys, num_keys)}

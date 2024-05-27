@@ -2,10 +2,13 @@ from collections import defaultdict
 from itertools import combinations
 
 from caches.MultiDimensionalCacheBase import MultiDimensionalCacheBase
+from constants import *
 from utilities.Timer import Timer
 
 
-class AshedCacheWithPrematch(MultiDimensionalCacheBase):
+
+
+class AshedCacheCompiled(MultiDimensionalCacheBase):
     def __init__(self):
         self.cache = defaultdict(dict)
         self.matching_pattern = defaultdict(dict)
@@ -64,19 +67,33 @@ class AshedCacheWithPrematch(MultiDimensionalCacheBase):
                 return True
         return False
 
-    def check_matching_parameters(self):
+    def compile_patterns(self):
         timer = Timer()
         timer.start()
-        param_keys = ['A', 'B', 'C', 'D', 'E']
-        for i in range(len(param_keys), 0, -1):
-            for combo in combinations(param_keys, i):
-                has_matching_pattern = self.has_matching_data(combo)
-                # cache the results
-                self.matching_pattern[combo] = has_matching_pattern
-
+        self._compile_patterns(KEY_FIELDS)
+        timer.end(True,"Created valid matching pattern")
         count = 0
         for value in self.matching_pattern.values():
             if value:
                 count += 1
-        print('Valid patterns',count,'of', len(self.matching_pattern))
-        timer.end(True,"Created valid matching pattern")
+        print('Valid patterns', count, 'of', len(self.matching_pattern))
+
+    def _compile_patterns(self, param_keys):
+        """
+        Check all possible combinations of the provided parameter keys to see if they
+        match any rule in the cache. Cache the results.
+
+        Parameters:
+        param_keys (list): A list of parameter keys to check.
+        """
+        # Iterate over all lengths of combinations from the length of param_keys down to 1
+        for i in range(len(param_keys), 0, -1):
+            # Generate all combinations of param_keys of length i
+            for combo in combinations(param_keys, i):
+                # Check if the current combination matches any data in the cache
+                has_matching_pattern = self.has_matching_data(combo)
+                # Cache the result of whether this combination has matching data
+                self.matching_pattern[combo] = has_matching_pattern
+
+
+
