@@ -25,7 +25,7 @@ class AshedCache(MultiDimensionalCacheBase):
         for i in range(len(param_keys), 0, -1):
             for combo in combinations(param_keys, i):
                 key = tuple((k, params[k]) for k in combo)
-                print(params,combo, keys)
+                # print(params,combo, keys)
                 keys.append(key)
         return keys
 

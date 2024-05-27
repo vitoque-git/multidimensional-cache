@@ -3,16 +3,16 @@ import random
 # Define the number of records and maximum integer for key values
 from utilities.Timer import Timer
 
-num_records = 140000
-max_int = 10000
+num_records = 14000
+max_int = 100
 
 # Define the distribution of records with 1, 2, 3, 4, and 5 keys
 key_distribution = {
-    1: 0.1,  # 5% of records will have 1 key
-    2: 0.2,  # 20% of records will have 2 keys
-    3: 0.3,  # 30% of records will have 3 keys
-    4: 0.2,  # 20% of records will have 4 keys
-    5: 0.25  # 25% of records will have 5 keys
+    1: 0.01,  # 1% of records will have 1 key
+    2: 0.02,  # 2% of records will have 2 keys
+    3: 0.02,  # 30% of records will have 3 keys
+    4: 0.15,  # 20% of records will have 4 keys
+    5: 0.80  # 25% of records will have 5 keys
 }
 
 
