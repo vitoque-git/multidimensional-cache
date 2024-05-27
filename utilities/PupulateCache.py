@@ -17,7 +17,7 @@ def random_search_params():
     }
 
 # Create random data
-def create_random_data(cache):
+def create_random_data(cache,num_records):
     _create_random_data(cache, num_records, max_int, key_distribution)
 
 def _create_random_data(cache, num_records, max_int, key_distribution):

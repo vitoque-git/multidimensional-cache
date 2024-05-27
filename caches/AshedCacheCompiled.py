@@ -6,8 +6,6 @@ from constants import *
 from utilities.Timer import Timer
 
 
-
-
 class AshedCacheCompiled(MultiDimensionalCacheBase):
     def __init__(self):
         self.cache = defaultdict(dict)

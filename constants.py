@@ -1,9 +1,6 @@
 # the name of fields
 KEY_FIELDS = ['A', 'B', 'C', 'D', 'E']
 
-# the number of rules to generate
-num_records = 14000
-
 # Define the distribution of rules with 1, 2, 3, 4, and 5 keys
 key_distribution = {
     1: 0.01,  # 1% of rules will have 1 key
