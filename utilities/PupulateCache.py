@@ -4,17 +4,9 @@ import random
 from constants import *
 from utilities.Timer import Timer
 
-
-
 # Generate random search parameters
 def random_search_params():
-    return {
-        'A': random.randint(1, max_int),
-        'B': random.randint(1, max_int),
-        'C': random.randint(1, max_int),
-        'D': random.randint(1, max_int),
-        'E': random.randint(1, max_int)
-    }
+    return {key: random.randint(1, max_int) for key in KEY_FIELDS}
 
 # Create random data
 def create_random_data(cache,num_records):
