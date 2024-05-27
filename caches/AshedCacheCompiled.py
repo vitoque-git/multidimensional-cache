@@ -1,23 +1,15 @@
 from collections import defaultdict
 from itertools import combinations
 
-from caches.MultiDimensionalCacheBase import MultiDimensionalCacheBase
+from caches.AshedCache import AshedCache
 from constants import *
 from utilities.Timer import Timer
 
 
-class AshedCacheCompiled(MultiDimensionalCacheBase):
+class AshedCacheCompiled(AshedCache):
     def __init__(self):
-        self.cache = defaultdict(dict)
+        super().__init__()
         self.matching_pattern = defaultdict(dict)
-
-    def add_to_cache(self, params, value):
-        """
-        Add a value to the cache with the given parameters.
-        """
-        key = tuple((k, params[k]) for k in params)
-        self.cache[key] = value
-        # print("Added", key, value)
 
     def generate_keys(self, params):
         """
@@ -29,24 +21,8 @@ class AshedCacheCompiled(MultiDimensionalCacheBase):
             for combo in combinations(param_keys, i):
                 if self.matching_pattern[combo]:
                     key = tuple((k, params[k]) for k in combo)
-                    # print(params,combo, keys)
                     keys.append(key)
         return keys
-
-
-
-    def search_cache(self, params):
-        """
-        Search the cache hierarchically with the given parameters.
-        """
-        keys = self.generate_keys(params)
-
-        attempt_number = 0
-        for key in keys:
-            attempt_number = attempt_number + 1
-            if key in self.cache:
-                return self.cache[key], attempt_number
-        return None, attempt_number
 
     def has_matching_data(self, key_combination):
         """
@@ -69,7 +45,7 @@ class AshedCacheCompiled(MultiDimensionalCacheBase):
         timer = Timer()
         timer.start()
         self._compile_patterns(KEY_FIELDS)
-        timer.end(True,"Created valid matching pattern")
+        timer.end(True, "Created valid matching pattern")
         count = 0
         for value in self.matching_pattern.values():
             if value:
