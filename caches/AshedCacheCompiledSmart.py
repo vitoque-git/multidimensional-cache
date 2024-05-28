@@ -1,30 +1,16 @@
 from caches.AshedCache import AshedCache
 from caches.AshedCacheCompiled import AshedCacheCompiled
-
+import types
 
 class AshedCacheCompiledSmart(AshedCacheCompiled):
-    def __init__(self):
-        super().__init__()
-        self.use_compiled = False
-
-    def generate_keys(self, params):
-        """
-        Generate all possible keys with decreasing number of parameters.
-        """
-        if self.use_compiled:
-            return super().generate_keys(params)  # Call generate_keys from AshedCacheCompiled
-        else:
-            return AshedCache.generate_keys(self, params)  # Call generate_keys from AshedCache
-
 
     def compile_patterns(self):
+        # calculate as usual the patterns
         super().compile_patterns()
 
-        for value in self.matching_pattern.values():
-            if not value:
-                self.use_compiled = True
-                return
-
-        self.use_compiled = False
+        # If all patterns are valid, set the generate_keys method to point to the AshedCache.generate_keys method
+        if all(self.matching_pattern.values()):
+            # Replace generate_keys method with super().generate_keys
+            self.generate_keys = types.MethodType(AshedCache.generate_keys(self, params))
 
 

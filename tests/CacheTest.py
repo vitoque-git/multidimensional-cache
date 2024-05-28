@@ -3,9 +3,12 @@ from utilities.Timer import Timer
 import numpy as np
 
 
-def do_test(cache, num_records):
-    # Create random data
-    create_random_data(cache, num_records)
+def do_test(cache, num_records, data=None, search_dataset=None):
+    if data is None:
+        # Create random data
+        create_random_data(cache, num_records)
+    else:
+        cache.cache = data
 
     try:
         # only compiled cache has compile_patterns
@@ -22,10 +25,14 @@ def do_test(cache, num_records):
 
     hits = 0
 
+    if search_dataset is None:
+        search_dataset = []
+        for _ in range(num_iterations):
+            # the search parameters are random in each attempt
+            search_dataset.append(random_search_params())
 
-    for _ in range(num_iterations):
+    for search_params in search_dataset:
         # the search parameters are random in each attempt
-        search_params = random_search_params()
         timer.start()
 
         #search this value
@@ -48,6 +55,6 @@ def do_test(cache, num_records):
     print(f"Maximum search time: {np.max(search_times):.6f} ms")
 
     print(f"Average attempts: {np.mean(attempt_iteractions):.1f}")
-    return np.mean(search_times)
+    return np.mean(search_times), search_dataset
 
 
