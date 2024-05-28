@@ -7,12 +7,14 @@ def do_plot(results, title):
     num_rules = list(results.keys())
     average_hashed = [v[0] for v in results.values()]
     average_compiled = [v[1] for v in results.values()]
+    average_smart = [v[2] for v in results.values()]
 
     # Create the plot
     plt.figure(figsize=(10, 6))
 
     plt.plot(num_rules, average_hashed, label='Average Hashed', marker='o')
     plt.plot(num_rules, average_compiled, label='Average Compiled', marker='o')
+    plt.plot(num_rules, average_smart, label='Average CompiledSmart', marker='o')
 
     # Add titles and labels
     plt.title(title)
