@@ -14,10 +14,10 @@ for n in [1, 50, 100, 300, 500, 750, 1000, 1200, 1500]:
     data = cache.cache
 
     cache = AshedCacheCompiled()
-    compiled, search_dataset2 = do_test(cache, num_records=n, data=data, search_dataset=search_dataset1)
+    compiled, search_dataset2 = do_test(cache, data=data, search_dataset=search_dataset1)
 
     cache = AshedCacheCompiledSmart()
-    smart, search_dataset3 = do_test(cache, num_records=n, data=data, search_dataset=search_dataset1)
+    smart, search_dataset3 = do_test(cache, data=data, search_dataset=search_dataset1)
 
     results[n] = (ashed, compiled, smart)
 

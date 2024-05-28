@@ -11,6 +11,6 @@ class AshedCacheCompiledSmart(AshedCacheCompiled):
         # If all patterns are valid, set the generate_keys method to point to the AshedCache.generate_keys method
         if all(self.matching_pattern.values()):
             # Replace generate_keys method with super().generate_keys
-            self.generate_keys = types.MethodType(AshedCache.generate_keys(self, params))
+            self.__class__ = AshedCache
 
 

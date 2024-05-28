@@ -3,7 +3,7 @@ from utilities.Timer import Timer
 import numpy as np
 
 
-def do_test(cache, num_records, data=None, search_dataset=None):
+def do_test(cache, num_records=None, data=None, search_dataset=None):
     if data is None:
         # Create random data
         create_random_data(cache, num_records)
