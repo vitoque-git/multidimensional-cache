@@ -38,7 +38,7 @@ For example:
 - 5 fields yield 31 combinations.
 - 10 fields yield 1023 combinations.
 
-Checking each combination can slow down the search, resulting in a complexity of (2n−1)∗O(1)(2^n - 1) * O(1)(2n−1)∗O(1). For instance:
+Checking each combination can slow down the search, resulting in a complexity of (2^n - 1)∗O(1). For instance, with n= 3, then (2^n - 1) = 9 and: 
 - A lemon would match at the first check.
 - A banana might explore 5 combinations.
 - An avocado might check all 9 combinations before being resolved as a no hit.
