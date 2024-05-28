@@ -127,4 +127,5 @@ As expected, the more rules defined, the fewer patterns can be excluded. For a 5
 
 This approach effectively optimizes search performance by reducing the number of necessary checks, especially beneficial in scenarios with static rules but dynamic data events.
 
-![5 fields cache comparison](\assets\compare_5fields.png)
+![5 fields cache comparison](/assets/compare_5fields.png)
+
