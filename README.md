@@ -117,27 +117,33 @@ class HashedCacheCompiled:
         return keys
 ```
 
-
 ## Results
 
-As expected, the more rules defined, the fewer patterns can be excluded. For a 5-field index:
-- 1000 rules will likely cover all 31 combinations, providing no optimization advantage.
-- 100 rules might cover only half of the combinations, improving performance by 50%.
-- Fewer than 100 rules result in even more significant performance improvements.
+As expected, the number of rules defined impacts the efficiency of pattern exclusion. For a 5-field index:
+- With 1000 rules, it's likely that all 31 combinations are covered, providing no optimization advantage.
+- With 100 rules, approximately half of the combinations might be covered, resulting in a 50% improvement in performance.
+- With fewer than 100 rules, performance improvements are even more significant.
 
-This approach effectively optimizes search performance by reducing the number of necessary checks, especially beneficial in scenarios with static rules but dynamic data events.
+This approach optimizes search performance by reducing the number of necessary checks, particularly beneficial in scenarios with static rules but dynamic data events.
+### Graphs
+#### 5 Fields Cache Comparison
 
 ![5 fields cache comparison](assets/compare_5fields.png)
+
+#### 10 Fields Cache Comparison
+
 ![10 fields cache comparison](assets/compare_10fields.png)
 
-The graphs show a number of interesting findings:
-- growing the rules, there is a point in which all patterns combinations are potentially yielding a result. Going over this, the overhead of checking if the pattern is valid making the compiled search slightly slower than the pure ashed one 
-- when moving from 5 key fields to 10, the latency increases exponencially from 20ms to about 800ms due to the increase in patterns search (that go from 31 combinations to 1023).
 
-## Further optimisations
-When all patterns are possibly yielding a match, it is possible just to detect the situation and rollback to the simple ashed implementation. This is implemented in a third class, AshedCacheCompiledSmart:
+The graphs reveal several insights:
+- With an increasing number of rules, there's a point at which all pattern combinations potentially yield a result. Beyond this point, the overhead of checking if the pattern is valid makes the compiled search slightly slower than the pure hashed one.
+- Transitioning from 5 key fields to 10, the latency increases exponentially from 20ms to about 800ms due to the increased patterns search (from 31 combinations to 1023).
+## Further Optimizations
+### AshedCacheCompiledSmart
 
+To address situations where all patterns may yield a match, a smart approach detects this and switches back to the simpler hashed implementation. This is implemented in the `AshedCacheCompiledSmart` class:
 
+```python
 class AshedCacheCompiledSmart(AshedCacheCompiled):
     def __init__(self):
         super().__init__()
@@ -152,7 +158,6 @@ class AshedCacheCompiledSmart(AshedCacheCompiled):
         else:
             return AshedCache.generate_keys(self, params)  # Call generate_keys from AshedCache
 
-
     def compile_patterns(self):
         super().compile_patterns()
 
@@ -162,12 +167,23 @@ class AshedCacheCompiledSmart(AshedCacheCompiled):
                 return
 
         self.use_compiled = False
+```
 
-Unsurprisingly the new implementation combine imrprovement of the AshedCacheCompiled below the threshold of full tree search, with the flat line of AshedCache above that:
 
-![A combined approach](assets/compare_5field_smarts.png)
 
-## conclusion
+The new implementation combines improvements of the `AshedCacheCompiled` below the threshold of full tree search with the flat line of `AshedCache` above that:
+
+![A combined approach](assets/compare_5field_smarts2.png)
+
+## Conclusions
+
+The multidimensional cache implementation discussed in this project offers a robust solution for efficiently handling complex hierarchical data structures. Through a series of experiments and optimizations, several key conclusions emerge: 
+- **Rule-Based Optimization** : The cache's performance is intricately tied to the number and specificity of rules defined. By carefully defining rules to cover common patterns and utilizing wildcard matching where applicable, significant performance improvements can be achieved. 
+- **Dynamic Data Events** : While the cache's rules may remain static, the data events driving cache lookups are dynamic. This necessitates an approach that balances efficient rule matching with the flexibility to adapt to changing data patterns. 
+- **Compiled Pattern Detection** : The introduction of compiled pattern detection in the `AshedCacheCompiledSmart` class offers an elegant solution to dynamically switching between optimized and traditional search approaches. By intelligently detecting scenarios where all patterns may yield a match, unnecessary overhead is avoided, leading to improved overall performance. 
+- **Graphical Insights** : Visualizing cache performance through graphical representations provides valuable insights into the relationship between rule complexity, search efficiency, and latency. These insights inform further optimizations and help identify potential areas for refinement.
+
+In conclusion, the multidimensional cache implementation presented here demonstrates the importance of thoughtful rule definition, dynamic adaptation to changing data patterns, and innovative optimization techniques. By leveraging these principles, developers can create efficient and scalable caching solutions tailored to their specific use cases.
 
 
 
