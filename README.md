@@ -145,28 +145,14 @@ To address situations where all patterns may yield a match, a smart approach det
 
 ```python
 class AshedCacheCompiledSmart(AshedCacheCompiled):
-    def __init__(self):
-        super().__init__()
-        self.use_compiled = False
-
-    def generate_keys(self, params):
-        """
-        Generate all possible keys with decreasing number of parameters.
-        """
-        if self.use_compiled:
-            return super().generate_keys(params)  # Call generate_keys from AshedCacheCompiled
-        else:
-            return AshedCache.generate_keys(self, params)  # Call generate_keys from AshedCache
 
     def compile_patterns(self):
+        # calculate as usual the patterns
         super().compile_patterns()
 
-        for value in self.matching_pattern.values():
-            if not value:
-                self.use_compiled = True
-                return
-
-        self.use_compiled = False
+        # If all patterns are valid, fall back to the AshedCache class
+        if all(self.matching_pattern.values()):
+            self.__class__ = AshedCache
 ```
 
 
