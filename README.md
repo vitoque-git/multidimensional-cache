@@ -31,14 +31,14 @@ else: not found
 
 ## Hashed Serialized Caches
 
-A generic and performant implementation of this cache search uses hashing by serializing a multidimensional key, where a wildcard represents unspecified keys. Each `cache_search` is indexed, achieving O(1) complexity. However, the number of field combinations grows exponentially, calculated as 2n−12^n - 12n−1, where nnn is the number of fields.
+A generic and performant implementation of this cache search uses hashing by serializing a multidimensional key, where a wildcard represents unspecified keys. Each `cache_search` is indexed, achieving O(1) complexity. However, the number of field combinations grows exponentially, calculated as 2^n − 1, where n is the number of fields.
 
 For example:
-- 3 fields yield 7 combinations.
+- 3 fields yield 9 combinations.
 - 5 fields yield 31 combinations.
 - 10 fields yield 1023 combinations.
 
-Checking each combination can slow down the search, resulting in a complexity of (2n−1)∗O(1)(2^n - 1) * O(1)(2n−1)∗O(1). For instance:
+Checking each combination can slow down the search, resulting in a complexity of (2^n - 1)∗O(1). For instance, with n= 3, then (2^n - 1) = 9 and: 
 - A lemon would match at the first check.
 - A banana might explore 5 combinations.
 - An avocado might check all 9 combinations before being resolved as a no hit.
