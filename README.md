@@ -128,4 +128,46 @@ As expected, the more rules defined, the fewer patterns can be excluded. For a 5
 This approach effectively optimizes search performance by reducing the number of necessary checks, especially beneficial in scenarios with static rules but dynamic data events.
 
 ![5 fields cache comparison](assets/compare_5fields.png)
+![10 fields cache comparison](assets/compare_10fields.png)
+
+The graphs show a number of interesting findings:
+- growing the rules, there is a point in which all patterns combinations are potentially yielding a result. Going over this, the overhead of checking if the pattern is valid making the compiled search slightly slower than the pure ashed one 
+- when moving from 5 key fields to 10, the latency increases exponencially from 20ms to about 800ms due to the increase in patterns search (that go from 31 combinations to 1023).
+
+## Further optimisations
+When all patterns are possibly yielding a match, it is possible just to detect the situation and rollback to the simple ashed implementation. This is implemented in a third class, AshedCacheCompiledSmart:
+
+
+class AshedCacheCompiledSmart(AshedCacheCompiled):
+    def __init__(self):
+        super().__init__()
+        self.use_compiled = False
+
+    def generate_keys(self, params):
+        """
+        Generate all possible keys with decreasing number of parameters.
+        """
+        if self.use_compiled:
+            return super().generate_keys(params)  # Call generate_keys from AshedCacheCompiled
+        else:
+            return AshedCache.generate_keys(self, params)  # Call generate_keys from AshedCache
+
+
+    def compile_patterns(self):
+        super().compile_patterns()
+
+        for value in self.matching_pattern.values():
+            if not value:
+                self.use_compiled = True
+                return
+
+        self.use_compiled = False
+
+Unsurprisingly the new implementation combine imrprovement of the AshedCacheCompiled below the threshold of full tree search, with the flat line of AshedCache above that:
+
+![A combined approach](assets/compare_5field_smarts.png)
+
+## conclusion
+
+
 
